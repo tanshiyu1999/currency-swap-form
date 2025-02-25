@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,6 +12,18 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+} */
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  @apply bg-[#383838] rounded-md; /* Change scrollbar color */
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  @apply bg-transparent; /* Change track color */
 }
 
 body {
@@ -19,3 +31,6 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+

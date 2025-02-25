@@ -1,101 +1,175 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import TextField from "./components/TextField";
+import prices from "./data/prices";
+import { FaArrowDown } from "react-icons/fa6";
+import { on } from "events";
+
+
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const pricesDict: Record<string, number> = {};
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const pricesName: string[] = [];
+  
+  prices.forEach(({ currency, price }) => {
+    pricesDict[currency] = price; 
+    if (!pricesName.includes(currency)) {
+      pricesName.push(currency);
+    }
+  });
+
+  const [sellCrypto, setSellCrypto] = useState(0);
+  const [sellUSD, setSellUSD] = useState(0);
+  const [currentSellToken, setCurrentSellToken] = useState("ETH");
+  const [isSellToken, setIsSellToken] = useState(true);
+
+
+
+  const [buyCrypto, setBuyCryptoValue] = useState(0);
+  const [buyUSD, setBuyUSD] = useState(0);
+  const [currentBuyToken, setCurrentBuyToken] = useState("");
+  const [isBuyToken, setIsBuyToken] = useState(true);
+
+  const prevSellCrypto = useRef(sellCrypto);
+  const prevSellUSD = useRef(sellUSD);
+  const prevBuyCrypto = useRef(buyCrypto);
+  const prevBuyUSD = useRef(buyUSD);
+
+  const switchBuySell = () => {
+    const tempSellCrypto = sellCrypto;
+    const tempSellUSD = sellUSD;
+    const tempCurrentSellToken = currentSellToken;
+    const tempIsSellToken = isSellToken;
+
+    setSellCrypto(buyCrypto);
+    setSellUSD(buyUSD);
+    setCurrentSellToken(currentBuyToken);
+    setIsSellToken(isBuyToken);
+
+    setBuyCryptoValue(tempSellCrypto);
+    setBuyUSD(tempSellUSD);
+    setCurrentBuyToken(tempCurrentSellToken);
+    setIsBuyToken(tempIsSellToken);
+  }
+
+  const onSellCryptoChange = (value: any) => {
+    const cryptoValue = value;
+    const usdValue = value * pricesDict[currentSellToken];
+    const buyCryptoValue = usdValue / pricesDict[currentBuyToken];
+
+    setSellCrypto(cryptoValue);
+    setSellUSD(usdValue);
+    setBuyUSD(usdValue);
+    setBuyCryptoValue(buyCryptoValue);
+  }
+
+  const onSellUSDChange = (value: any) => {
+    const usdValue = value;
+    const sellCryptoValue = usdValue / pricesDict[currentSellToken];
+    const buyCryptoValue = usdValue / pricesDict[currentBuyToken];
+    setSellUSD(usdValue);
+    setSellCrypto(sellCryptoValue);
+    setBuyUSD(usdValue);
+    setBuyCryptoValue(buyCryptoValue);
+  }
+
+  const onBuyCryptoChange = (value: any) => {
+    const buyCryptoValue = value;
+    const usdValue = buyCrypto * pricesDict[currentBuyToken];
+    const sellCryptoValue = usdValue / pricesDict[currentSellToken];
+    
+    setBuyCryptoValue(buyCryptoValue);
+    setBuyUSD(usdValue);
+    setSellUSD(usdValue);
+    setSellCrypto(sellCryptoValue);
+  }
+
+  const onBuyUSDChange = (value: any) => {
+    const usdValue = value;
+    const buyCryptoValue = usdValue / pricesDict[currentBuyToken];
+    const sellCryptoValue = usdValue / pricesDict[currentSellToken];
+
+    setBuyUSD(usdValue);
+    setBuyCryptoValue(buyCryptoValue);
+    setSellUSD(usdValue);
+    setSellCrypto(sellCryptoValue);
+  }
+
+  const onSellTokenChange = (tokenStr: string) => {
+    const newSellTokenValue = sellUSD / pricesDict[tokenStr];
+    const newBuyTokenValue = sellUSD / pricesDict[currentBuyToken];
+    setSellCrypto(newSellTokenValue);
+    setBuyCryptoValue(newBuyTokenValue);
+  }
+
+  const onBuyTokenChange = (tokenStr: string) => {
+    const newSellTokenValue = sellUSD / pricesDict[currentSellToken];
+    const newBuyTokenValue = sellUSD / pricesDict[tokenStr];
+    setSellCrypto(newSellTokenValue);
+    setBuyCryptoValue(newBuyTokenValue);
+  }
+
+  
+  return (
+    
+    <div className="flex flex-col justify-center items-center h-dvh bg-[#141414]">
+      <TextField 
+        label="Sell"
+        value={isSellToken ? sellCrypto : sellUSD}
+        subValue={isSellToken ? sellUSD : sellCrypto}
+        currentToken={currentSellToken}
+        onTokenChange={onSellTokenChange}
+        pricesName={pricesName}
+        isToken={isSellToken}
+        setCurrentToken={setCurrentSellToken}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+          isSellToken ? onSellCryptoChange(Number(e.target.value)) : onSellUSDChange(Number(e.target.value))
+        }
+        isTokenToggle={setIsSellToken}
+      />
+
+      <div className="relative flex justify-center items-center 
+        bg-[#212121] hover:bg-[#424242] active:bg-[#292929]
+        w-[45px] h-[45px] bottom-0 m-[-20px] border-3 border-[#141414]
+        border-1 rounded-xl z-10 cursor-pointer" 
+        onClick={() => switchBuySell()}
+      >
+        <FaArrowDown
+          size={28}
+          color="#fff"
+        />
+      </div>
+
+      <TextField 
+        label="Buy"
+        value={isBuyToken ? buyCrypto : buyUSD}
+        subValue={isBuyToken ? buyUSD : buyCrypto}
+        pricesName={pricesName}
+        onTokenChange={onBuyTokenChange}
+        isToken={isBuyToken}
+        currentToken={currentBuyToken}
+        setCurrentToken={setCurrentBuyToken}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          const value = e.target.value.replace(/\D/g, "");
+          isBuyToken ? onBuyCryptoChange(Number(value)) : onBuyUSDChange(Number(value));
+
+        }}
+        isTokenToggle={setIsBuyToken}
+      />
+
+      <div 
+        className="flex items-center justify-center 
+        bg-[#361a37] hover:bg-[#572a58] max-w-[470px] w-[95%] 
+          rounded-xl mt-4 cursor-pointer active:opacity-80
+          p-3"
+        onClick={() => window.open("https://github.com/tanshiyu1999/currency-swap-form", "_blank")}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <a className="text-[#fc72ff] text-lg font-bold">Source Code</a>
+      </div>
+      
+      
     </div>
   );
 }

@@ -88,7 +88,6 @@ export default function Home() {
 
   const onBuyUSDChange = (value: any) => {
     const usdValue = value;
-    console.log("ww")
     const buyCryptoValue = usdValue / pricesDict[currentBuyToken];
     const sellCryptoValue = usdValue / pricesDict[currentSellToken];
 
@@ -169,7 +168,25 @@ export default function Home() {
           >
         <a className="text-[#fc72ff] text-lg font-bold">Source Code</a>
       </div>
-      
+      <div 
+        className="flex items-center justify-center 
+        bg-[#361a37] hover:bg-[#572a58] max-w-[470px] w-[95%] 
+          rounded-xl mt-4 cursor-pointer active:opacity-80
+          p-3"
+        onClick={() => window.open("https://github.com/tanshiyu1999/currency-swap-form/blob/main/oa/messy_react.tsx", "_blank")}
+          >
+        <a className="text-[#fc72ff] text-lg font-bold">Messay React</a>
+      </div>
+
+      <div 
+        className="flex items-center justify-center 
+        bg-[#361a37] hover:bg-[#572a58] max-w-[470px] w-[95%] 
+          rounded-xl mt-4 cursor-pointer active:opacity-80
+          p-3"
+        onClick={() => window.open("https://github.com/tanshiyu1999/currency-swap-form/blob/main/oa/sum_to_n.js", "_blank")}
+          >
+        <a className="text-[#fc72ff] text-lg font-bold">Sums to n</a>
+      </div>
       
     </div>
   );

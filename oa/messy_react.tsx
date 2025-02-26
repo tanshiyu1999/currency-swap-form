@@ -1,5 +1,4 @@
-/*
-
+/* 
 interface WalletBalance {
   currency: string;
   amount: number;
@@ -75,7 +74,8 @@ const WalletPage: React.FC<Props> = (props: Props) => {
 
   // I combined sortedBalance, formatedBalance and rows into a single useMemo, as the change in balances/ prices will result in a domino effect and re-render the DOM
   const rows = useMemo(() => { // Sorts balance when balances/ prices changes
-    return balances.filter((balance: WalletBalance) => { // Filtering out balances with 0 or negative amount
+    const tempBalances = balances;
+    return tempBalances.filter((balance: WalletBalance) => { // Filtering out balances with 0 or negative amount
 		  const balancePriority = getPriority(balance.blockchain);
 		  if (balancePriority > -99 && balance.amount >= 0) { // I believe we want only want to filter out when the balance have a priority + the account has a valid amount (>= 0)
 		    return true;

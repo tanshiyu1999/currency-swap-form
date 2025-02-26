@@ -32,7 +32,7 @@ export default function TextField({label, value, pricesName,
               {!isToken && <span className="text-3xl text-white">$</span>}
               <input
                 type="text"
-                value={value ? value : ""}
+                value={value ? parseFloat(value.toFixed(2)) : ""}
                 placeholder="0"
                 inputMode="numeric"
                 onChange={(e) => {
@@ -47,7 +47,7 @@ export default function TextField({label, value, pricesName,
                   } else {
                     inputElement.style.fontSize = "36px"; // Smallest font at max length
                   }
-                  if (inputLength < 20) {
+                  if (inputLength < 16) {
                     onChange(e)
                   }
                 }}

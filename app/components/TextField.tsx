@@ -1,6 +1,8 @@
 "use client";
 
 import TokenButton from "./TokenButton";
+import numeral from "numeral";
+import { useState } from "react";
 
 type TextFieldProps = {
   label: string;
@@ -15,10 +17,16 @@ type TextFieldProps = {
   isTokenToggle: (isToken: boolean) => void;
 };
 
+const formatLargeNumber = (num: number) => {
+  return num >= 1e6 ? numeral(num).format('0.00a').toUpperCase() : num.toFixed(2);
+};
+
 export default function TextField({label, value, pricesName, 
   setCurrentToken, subValue, onChange, isToken, isTokenToggle, currentToken,
   onTokenChange,
 }: TextFieldProps) {
+
+  const [inputLength, setInputLength] = useState(0)
 
   return (
     
@@ -36,22 +44,16 @@ export default function TextField({label, value, pricesName,
                 placeholder="0"
                 inputMode="numeric"
                 onChange={(e) => {
-                  let inputVal = e.target.value;
                   const inputElement = e.target;
                   const inputLength = inputElement.value.length;
-
-                  if (inputLength > 20) {
-                    inputElement.style.fontSize = "26px"; // Medium font
-                  } else if (inputLength > 15) {
-                    inputElement.style.fontSize = "30px"; // Smaller font
-                  } else {
-                    inputElement.style.fontSize = "36px"; // Smallest font at max length
-                  }
+                  console.log(inputLength)
+                  setInputLength(inputLength)
                   if (inputLength < 16) {
                     onChange(e)
                   }
                 }}
-                className="focus:outline-none bg-transparent text-4xl w-full text-white"
+                // className="focus:outline-none bg-transparent text-4xl w-full text-white"
+                className={`focus:outline-none bg-transparent w-full text-white transition-all duration-100 ${inputLength > 14 ? "text-3xl" : "text-4xl"}`}
               />
             </div>
           </div>
@@ -77,13 +79,13 @@ export default function TextField({label, value, pricesName,
           >
             {isToken ? (
               <div className="flex space-x-2 mt-2">
-                {subValue ? <span className="text-lg text-gray-400">${subValue.toFixed(2)}</span> : 
+                {subValue ? <span className="text-lg text-gray-400">${formatLargeNumber(parseFloat(subValue.toFixed(2)))}</span> : 
                   <span className="text-lg text-gray-400">$0</span>
                 } 
               </div>
             ) : (
               <div className="flex space-x-2 mt-2">
-                {subValue ? <span className="text-lg text-gray-400"> {subValue.toFixed(2)} {currentToken}</span> : 
+                {subValue ? <span className="text-lg text-gray-400"> {formatLargeNumber(parseFloat(subValue.toFixed(2)))} {currentToken}</span> : 
                   <span className="text-lg text-gray-400">0 {currentToken}</span> 
                 }
               </div>

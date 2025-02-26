@@ -20,7 +20,7 @@ export default function Home() {
     }
   });
 
-  const [sellCrypto, setSellCrypto] = useState(0);
+  const [sellCrypto, setSellCrypto] = useState(0); // In retrospect, should have used string (while float when doing calculations)
   const [sellUSD, setSellUSD] = useState(0);
   const [currentSellToken, setCurrentSellToken] = useState("ETH");
   const [isSellToken, setIsSellToken] = useState(true);
@@ -77,7 +77,7 @@ export default function Home() {
 
   const onBuyCryptoChange = (value: any) => {
     const buyCryptoValue = value;
-    const usdValue = buyCrypto * pricesDict[currentBuyToken];
+    const usdValue = buyCryptoValue * pricesDict[currentBuyToken];
     const sellCryptoValue = usdValue / pricesDict[currentSellToken];
     
     setBuyCryptoValue(buyCryptoValue);
@@ -88,6 +88,7 @@ export default function Home() {
 
   const onBuyUSDChange = (value: any) => {
     const usdValue = value;
+    console.log("ww")
     const buyCryptoValue = usdValue / pricesDict[currentBuyToken];
     const sellCryptoValue = usdValue / pricesDict[currentSellToken];
 

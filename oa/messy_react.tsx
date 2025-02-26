@@ -19,6 +19,8 @@ class Datasource {
 
   async getPrices(): Promise<any> {
     const response = await fetch(this.url);
+
+    // Parse the data into the proper format.
     const data = await response.json();
 
     const prices: any = {};
@@ -35,10 +37,12 @@ interface Props extends BoxProps {
 }
 const WalletPage: React.FC<Props> = (props: Props) => {
   const { children, ...rest } = props;
-  const balances = useWalletBalances();
+
+  // clarifying the type, I assume its an array of balance since we are using array functions later (filter, map, sort)
+  const balances: WalletBalance[] = useWalletBalances();
 
   // Having a typing to prices will have programmer understand how prices should look like
-	const [prices, setPrices] = useState({}); 
+	const [prices, setPrices] = useState<{ [key: string]: number }>({}); 
 
   useEffect(() => {
     const datasource = new Datasource("https://interview.switcheo.com/prices.json");
@@ -67,8 +71,8 @@ const WalletPage: React.FC<Props> = (props: Props) => {
 	  }
 	}
 
-
-  const sortedBalances = useMemo(() => { // Sorts balance when balances/ prices changes
+  // I combined sortedBalance, formatedBalance and rows into a single useMemo, as the change in balances/ prices will result in a domino effect and re-render the DOM
+  const rows = useMemo(() => { // Sorts balance when balances/ prices changes
     return balances.filter((balance: WalletBalance) => { // Filtering out balances with 0 or negative amount
 		  const balancePriority = getPriority(balance.blockchain);
 		  if (balancePriority > -99 && balance.amount >= 0) { // I believe we want only want to filter out when the balance have a priority + the account has a valid amount (>= 0)
@@ -83,28 +87,25 @@ const WalletPage: React.FC<Props> = (props: Props) => {
 		  } else if (rightPriority > leftPriority) {
 		    return 1;
 		  }
+      return 0; // For situation where both priorities are equal
+    }).map((balance: WalletBalance) => ({
+      ...balance,
+      formatted: balance.amount.toFixed(),
+    })).map((balance: FormattedWalletBalance, index: number) => {
+      const usdValue = prices[balance.currency] * balance.amount;
+      return (
+        <WalletRow // Will have to input this component
+          className={classes.row} // Ensure `classes.row` is defined, otherwise remove it
+          key={index}
+          amount={balance.amount}
+          usdValue={usdValue}
+          formattedAmount={balance.formatted} // Use the formatted string
+        />
+      );
     });
   }, [balances, prices]);
 
-  const formattedBalances = sortedBalances.map((balance: WalletBalance) => {
-    return {
-      ...balance,
-      formatted: balance.amount.toFixed() 
-    }
-  })
-
-  const rows = sortedBalances.map((balance: FormattedWalletBalance, index: number) => {
-    const usdValue = prices[balance.currency] * balance.amount;
-    return (
-      <WalletRow 
-        className={classes.row} // I assume classes is defined somewhere, if not it should be removed.
-        key={index}
-        amount={balance.amount}
-        usdValue={usdValue}
-        formattedAmount={balance} // Already formatted
-      />
-    )
-  })
+  
 
   return (
     <div {...rest}>

@@ -1,3 +1,5 @@
+/*
+
 interface WalletBalance {
   currency: string;
   amount: number;
@@ -113,3 +115,5 @@ const WalletPage: React.FC<Props> = (props: Props) => {
     </div>
   )
 }
+
+*/
